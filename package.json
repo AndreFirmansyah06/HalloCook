@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "start": "node dist/server.cjs",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --outfile=dist/server.cjs --external:vite --external:express --external:bcryptjs --sourcemap --define:import.meta.url=\"null\"",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
   },

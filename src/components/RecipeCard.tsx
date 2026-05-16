@@ -9,6 +9,7 @@ interface RecipeCardProps {
   recipe: Recipe;
   isBookmarked?: boolean;
   onBookmarkToggle?: (recipeId: string) => void;
+  key?: React.Key;
 }
 
 export default function RecipeCard({ recipe, isBookmarked, onBookmarkToggle }: RecipeCardProps) {

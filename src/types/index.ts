@@ -25,12 +25,23 @@ export interface Favorite {
   id: string;
   user_id: string;
   recipe_id: string;
-  recipe?: Recipe;
+  recipes?: Recipe; // Normalized to recipes (plural) as used in some places or recipe
 }
 
 export interface ShoppingItem {
   id: string;
   user_id: string;
   recipe_id: string;
-  recipes?: { title: string };
+  recipes?: Recipe;
+  checked_ingredients?: string[]; // Array of ingredient names that have been "bought"
+}
+
+export interface CookingSession {
+  id: string;
+  user_id: string;
+  recipe_id: string;
+  recipe?: Recipe;
+  completed_steps: number[]; // Indices of completed steps
+  progress: number; // 0 to 100
+  updated_at: string;
 }

@@ -10,6 +10,7 @@ import { cn } from '../lib/utils';
 export default function RecipeDetail() {
   const { id } = useParams();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [session, setSession] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { user } = useAuth();
@@ -24,8 +25,13 @@ export default function RecipeDetail() {
       const data = await api.getRecipeById(id!);
       setRecipe(data);
       if (user) {
-        const favs = await api.getFavorites(user.id);
+        const [favs, sessions] = await Promise.all([
+          api.getFavorites(user.id),
+          api.getCookingSessions(user.id)
+        ]);
         setIsBookmarked(favs.some(f => f.recipe_id === id));
+        const activeSession = sessions.find(s => s.recipeId === id);
+        if (activeSession) setSession(activeSession);
       }
     } catch (err) {
       console.error(err);
@@ -34,6 +40,34 @@ export default function RecipeDetail() {
     }
   }
 
+  const handleStartCooking = async () => {
+    if (!user) return alert("Please login to start cooking");
+    try {
+      const newSession = await api.startCooking(user.id, recipe!.id);
+      setSession(newSession);
+      alert("Let's start cooking! Access progress in Your Kitchen.");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleStep = async (stepIndex: number) => {
+    if (!session) return;
+    
+    try {
+      const completed = session.completed_steps || [];
+      const newCompleted = completed.includes(stepIndex) 
+        ? completed.filter((i: number) => i !== stepIndex)
+        : [...completed, stepIndex];
+      
+      const progress = (newCompleted.length / recipe!.steps.length) * 100;
+      const updated = await api.updateCookingProgress(session.id, newCompleted, progress);
+      setSession(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleToggleBookmark = async () => {
     if (!user) return alert("Please login to save recipes");
     try {
@@ -41,6 +75,17 @@ export default function RecipeDetail() {
       setIsBookmarked(res.active);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleAddToShoppingList = async () => {
+    if (!user) return alert("Please login to add to shopping list");
+    try {
+      await api.addToShoppingList(user.id, recipe!.id);
+      alert("Added to grocery list successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add to grocery list");
     }
   };
 
@@ -159,7 +204,10 @@ export default function RecipeDetail() {
                         </div>
                       ))}
                    </div>
-                   <button className="mt-10 bg-white/5 px-8 py-3 rounded-full text-brand-salmon font-bold uppercase tracking-[0.2em] text-[10px] border border-brand-salmon/20 hover:bg-brand-salmon/20 transition-all shadow-lg active:scale-95">
+                   <button 
+                     onClick={handleAddToShoppingList}
+                     className="mt-10 bg-white/5 px-8 py-3 rounded-full text-brand-salmon font-bold uppercase tracking-[0.2em] text-[10px] border border-brand-salmon/20 hover:bg-brand-salmon/20 transition-all shadow-lg active:scale-95"
+                   >
                      Sync to Shopping List
                    </button>
                 </div>
@@ -171,20 +219,53 @@ export default function RecipeDetail() {
                    </h3>
                    <div className="space-y-12 relative">
                       {recipe.steps.map((step, i) => (
-                        <div key={i} className="flex gap-10 items-start relative group">
-                           <div className="flex-shrink-0 w-12 h-12 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.25rem] flex items-center justify-center font-black text-brand-coral shadow-2xl group-hover:bg-brand-coral group-hover:text-white transition-all">
-                              {i + 1}
+                        <div 
+                           key={i} 
+                           className={cn(
+                              "flex gap-10 items-start relative group cursor-pointer",
+                              session?.completed_steps?.includes(i) && "opacity-40"
+                           )}
+                           onClick={() => session && handleToggleStep(i)}
+                        >
+                           <div className={cn(
+                              "flex-shrink-0 w-12 h-12 backdrop-blur-xl border border-white/10 rounded-[1.25rem] flex items-center justify-center font-black transition-all",
+                              session?.completed_steps?.includes(i) ? "bg-brand-coral text-white" : "bg-white/5 text-brand-coral group-hover:bg-brand-coral group-hover:text-white"
+                           )}>
+                               {session?.completed_steps?.includes(i) ? <CheckCircle2 size={24} /> : i + 1}
                            </div>
                            <div className="pt-2">
-                              <p className="text-white/60 font-medium leading-relaxed text-lg group-hover:text-white transition-colors">
-                                 {step}
-                              </p>
+                               <p className={cn(
+                                  "font-medium leading-relaxed text-lg transition-colors",
+                                  session?.completed_steps?.includes(i) ? "line-through text-white/40" : "text-white/60 group-hover:text-white"
+                               )}>
+                                  {step}
+                               </p>
                            </div>
                            {i < recipe.steps.length - 1 && (
                              <div className="absolute top-12 left-6 w-[1px] h-[calc(100%+32px)] bg-gradient-to-b from-white/10 to-transparent -z-10" />
                            )}
                         </div>
                       ))}
+                   </div>
+
+                   <div className="mt-16 flex gap-6">
+                      {!session ? (
+                        <button 
+                           onClick={handleStartCooking}
+                           className="flex-1 bg-white text-deep-dark py-6 rounded-[2rem] font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-2xl flex items-center justify-center gap-3"
+                        >
+                           <Play size={18} fill="currentColor" />
+                           Mulai Memasak
+                        </button>
+                      ) : (
+                        <div className="flex-1 glass p-8 rounded-[2.5rem] border-brand-coral/20 flex flex-col items-center">
+                           <div className="text-[10px] font-black text-brand-salmon uppercase tracking-[0.2em] mb-4 text-center">Cooking in Progress</div>
+                           <div className="w-full h-2 bg-white/5 rounded-full mb-4 overflow-hidden border border-white/5 shadow-inner">
+                              <div className="h-full bg-gradient-to-r from-brand-peach to-brand-coral shadow-[0_0_15px_rgba(255,127,80,0.5)]" style={{ width: `${session.progress}%` }} />
+                           </div>
+                           <span className="text-white/40 font-bold text-xs">{Math.round(session.progress)}% Complete</span>
+                        </div>
+                      )}
                    </div>
                 </div>
              </div>

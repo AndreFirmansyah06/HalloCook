@@ -55,11 +55,11 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" id="hero">
       <Hero />
       
       {/* Smart Search Bar */}
-      <div className="max-w-4xl mx-auto px-4 -mt-12 relative z-30">
+      <div className="max-w-4xl mx-auto px-4 -mt-12 relative z-30" id="search">
         <div className="glass rounded-[2.5rem] p-4 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] flex items-center gap-4 border-white/20">
           <div className="flex-1 flex items-center gap-4 bg-white/5 rounded-2xl px-6 py-4 border border-white/10">
             <Search className="text-brand-coral" size={24} />
@@ -118,43 +118,6 @@ export default function Home() {
             ))}
           </div>
         )}
-      </section>
-
-      {/* Aesthetic Section */}
-      <section className="relative py-32 overflow-hidden border-t border-white/5">
-         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-white/[0.02] backdrop-blur-3xl -z-10" />
-         
-         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-20">
-            <div className="flex-1 relative">
-               <div className="absolute -top-20 -left-20 w-64 h-64 bg-brand-coral/20 blur-[120px] -z-10" />
-               <span className="text-brand-coral font-black uppercase tracking-[0.3em] text-[10px]">PROFESSIONAL NETWORK</span>
-               <h3 className="text-6xl font-display font-extrabold tracking-tighter mt-4 mb-8 leading-[0.95]">Ready to start cooking<br />like a master chef?</h3>
-               <p className="text-lg text-white/40 mb-10 leading-relaxed max-w-xl font-medium">
-                 Join thousands of home cooks sharing authentic recipes every day. From traditional Indonesian flavors to modern luxury fusion kitchen.
-               </p>
-               <button className="px-10 py-5 bg-white text-deep-dark rounded-full font-bold shadow-2xl hover:scale-105 transition-transform">
-                 Join Community
-               </button>
-            </div>
-            <div className="flex-1 grid grid-cols-2 gap-6 relative">
-               <div className="space-y-6 pt-16">
-                  <div className="rounded-[2.5rem] overflow-hidden shadow-2xl h-64 border border-white/10 group">
-                    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3s]" referrerPolicy="no-referrer" />
-                  </div>
-                  <div className="rounded-[2.5rem] overflow-hidden shadow-2xl h-48 border border-white/10 group">
-                    <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3s]" referrerPolicy="no-referrer" />
-                  </div>
-               </div>
-               <div className="space-y-6">
-                  <div className="rounded-[2.5rem] overflow-hidden shadow-2xl h-48 border border-white/10 group">
-                    <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&q=80" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3s]" referrerPolicy="no-referrer" />
-                  </div>
-                  <div className="rounded-[2.5rem] overflow-hidden shadow-2xl h-64 border border-white/10 group">
-                    <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445?auto=format&fit=crop&q=80" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3s]" referrerPolicy="no-referrer" />
-                  </div>
-               </div>
-            </div>
-         </div>
       </section>
     </div>
   );
