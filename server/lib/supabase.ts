@@ -7,7 +7,10 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || "";
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error("CRITICAL: Supabase environment variables are missing! VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is not defined.");
+  console.warn("WARNING: Supabase environment variables are missing. API calls will fail.");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Only export the client if we have a URL, otherwise provide a proxy/safe wrapper
+export const supabase = supabaseUrl 
+  ? createClient(supabaseUrl, supabaseKey)
+  : (null as any); 

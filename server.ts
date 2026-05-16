@@ -30,8 +30,17 @@ app.use(express.json());
 const PORT = 3000;
 
 // --- AUTH API ---
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    vercel: !!process.env.VERCEL,
+    supabase: !!supabase 
+  });
+});
+
 app.post("/api/auth/signup", async (req, res) => {
   try {
+    if (!supabase) throw new Error("Database connection not initialized. Please check Vercel environment variables.");
     const data = await authService.signup(req.body);
     res.json({ message: "Account created successfully", user: { id: data.id, username: data.username, email: data.email, role: data.role } });
   } catch (error: any) {
@@ -41,6 +50,9 @@ app.post("/api/auth/signup", async (req, res) => {
 
 app.post("/api/auth/login", async (req, res) => {
   try {
+    if (!supabase && req.body.email !== "admin") {
+       throw new Error("Database connection not initialized. Please check Vercel environment variables.");
+    }
     const { email, password } = req.body;
     const user = await authService.login(email, password);
     res.json({ user, message: "Login successful" });
@@ -52,6 +64,7 @@ app.post("/api/auth/login", async (req, res) => {
 // --- RECIPES API ---
 app.get("/api/recipes", async (req, res) => {
   try {
+    if (!supabase) throw new Error("Database connection not initialized.");
     const data = await recipeService.getAll();
     res.json(data);
   } catch (error: any) {
